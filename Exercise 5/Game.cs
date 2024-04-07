@@ -17,10 +17,11 @@ namespace ProjektGenspil
         public int Condition { get; set; }
         public int Price { get; set; }
         public bool Stock { get; set; }
-        //public bool Requested { get; set }
+        public bool Requested { get; set; }
+        public string RequestedBy { get; set;}
 
         // The constructor.
-        public Game(string title, int year, string genre, string players, int condition, int price/*, bool stock*/)
+        public Game(string title, int year, string genre, string players, int condition, int price, bool stock, bool requested, string requestedBy)
         {
             this.Id = nextId++;
             this.Title = title/*.ToLower() for searching?*/;
@@ -29,7 +30,9 @@ namespace ProjektGenspil
             this.Players = players;
             this.Condition = condition;
             this.Price = price;
-            //this.Stock = stock;
+            this.Stock = stock;
+            this.Requested = requested;
+            this.RequestedBy = requestedBy;
         }
     }
 }
