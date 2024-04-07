@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -10,26 +11,85 @@ namespace ProjektGenspil
 {
     internal class Menu
     {
-        // These hold information for a new game to be added.
-        string Title;
-        int Year;
-        string Genre;
-        string Players;
-        int Condition;
-        int Price;
-        // Int for writing out the index of games in ShowGames().
-        int i = 1;
         // String for verifying user choice in VerifyNewGame() and DeleteGame().
         string verifyChoice;
-        // Int that points to the id of game for DeleteGame().
-        int id = 0;   
         // List that holds instances of Game.cs.
         public List<Game> gamesList = new List<Game>();
 
-        // The Constructor.
-        //public Menu()
-        //{
-        //}
+
+        public void SearchGames()
+        {
+            Console.WriteLine("Available search criteria:");
+            Console.WriteLine("1) Name");
+            Console.WriteLine("2) Price");
+            Console.WriteLine("3) Condition (1-10)");
+            Console.WriteLine("4) Players");
+            Console.WriteLine("5) Stock\n");
+
+            Console.Write("Enter search criteria (the number): ");
+            string criteria = Console.ReadLine().ToLower();
+
+            Console.Write("Enter search value: ");
+            string searchValue = Console.ReadLine().ToLower();
+
+            // A list to hold the game objects that meet the search criteria.
+            List<Game> searchResults = new List<Game>();
+
+            try
+            {
+                switch (criteria)
+                {
+                    case "1":
+                        searchResults = gamesList.Where(game => game.Title.ToLower().Contains(searchValue)).ToList();
+                        break;
+                    case "2":
+                        int price = int.Parse(searchValue);
+                        searchResults = gamesList.Where(game => game.Price == price).ToList();
+                        break;
+                    case "3":
+                        int condition = int.Parse(searchValue);
+                        searchResults = gamesList.Where(game => game.Condition == condition).ToList();
+                        break;
+                    case "4":
+                        searchResults = gamesList.Where(game => game.Players.ToLower().Contains(searchValue)).ToList();
+                        break;
+                    case "5":
+                        bool stockValue = searchValue == "yes";
+                        searchResults = gamesList.Where(game => game.Stock == stockValue).ToList();
+                        break;
+                    default:
+                        Console.WriteLine("Invalid search criteria. Press <enter> to try again.");
+                        Console.ReadLine();
+                        SearchGames();
+                        return;
+                }
+
+                if (searchResults.Count > 0)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Search results:\n");
+                    ShowGames(searchResults);
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("No games found matching the search criteria. Press <enter> to try again.");
+                    Console.ReadLine();
+                    SearchGames();
+                }
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Invalid value format. Press <enter> to try again.");
+                Console.ReadLine();
+                SearchGames();
+            }
+
+            return;
+        }
+
+
+
 
         // Method that loads the standard games library from a txt.file as setup.
         public void LoadGamesFromFile()
@@ -43,7 +103,7 @@ namespace ProjektGenspil
                     while ((line = sr.ReadLine()) != null)
                     {
                         string[] gameData = line.Split(','); // Assuming comma-separated values.
-                        if (gameData.Length == 6) // Ensure all six fields are present in each line (i.e. the split gameData array has six indexes).
+                        if (gameData.Length == 7) // Ensure all six fields are present in each line (i.e. the split gameData array has six indexes).
                         {
                             // Parse each piece of information from the file from each index of the gameData array.
                             string title = gameData[0];
@@ -52,9 +112,10 @@ namespace ProjektGenspil
                             string players = gameData[3];
                             int condition = int.Parse(gameData[4]);
                             int price = int.Parse(gameData[5]);
+                            bool stock = bool.Parse(gameData[6]);
 
                             // Add the new Game instance to the gamesList.
-                            gamesList.Add(new Game(title, year, genre, players, condition, price));
+                            gamesList.Add(new Game(title, year, genre, players, condition, price/*, stock*/));
                         }
                         else
                         {
@@ -104,6 +165,7 @@ namespace ProjektGenspil
             }
         }
 
+
         // Method to Create (Adds a new game instance to gamesList).
         // Tilføj evt. bekræftelse, om bruger vil tilføje nyt spil, ellers skal de igennem hele opsætningen, og endda slette det igen bagefter.
         // Tilføj getter, setter logik i Game.cs til at sikre korrekt input?
@@ -114,17 +176,21 @@ namespace ProjektGenspil
             try
             {
                 Console.Write("Title: ");
-                Title = Console.ReadLine();
+                string title = Console.ReadLine();
                 Console.Write("Year: ");
-                Year = int.Parse(Console.ReadLine());
+                int year = int.Parse(Console.ReadLine());
                 Console.Write("Genre: ");
-                Genre = Console.ReadLine();
+                string genre = Console.ReadLine();
                 Console.Write("Players (x-y): ");
-                Players = Console.ReadLine();
+                string players = Console.ReadLine();
                 Console.Write("Condition (1-10): ");
-                Condition = int.Parse(Console.ReadLine());
+                int condition = int.Parse(Console.ReadLine());
                 Console.Write("Price: ");
-                Price = int.Parse(Console.ReadLine());
+                int price = int.Parse(Console.ReadLine());
+                //Console.WriteLine("In stock? (Yes/No)");
+                //bool stock = bool.Parse(Console.ReadLine());
+
+                gamesList.Add(new Game(title, year, genre, players, condition, price/*, stock*/));
             }
             catch (Exception)
             {
@@ -134,89 +200,92 @@ namespace ProjektGenspil
                 AddGames();
             }
 
-            gamesList.Add(new Game(Title, Year, Genre, Players, Condition, Price));
-
-            VerifyNewGame();
+            GameSummary(gamesList[gamesList.Count - 1].Id);
         }
 
-        // Method for verifying a newly created game. 
+        // Method for summarizing a newly created game. 
         // Make into a more generic method to print verifying information on a single game for both AddGame() UpdateGame() and DeleteGame() taking ID as parameter?
         // Ved AddGame() er spil ID'et gamesList.Count, ved UpdateGame(); sættes ID i metoden, og ved DeleteGame() er al information lige blevet slettet for ID'et...
-        public void VerifyNewGame()
+        public void GameSummary(int id)
         {
-            Console.Clear();
             while (true)
             {
-                Console.WriteLine($"You have succesfully added the new game, {gamesList[gamesList.Count - 1].Title}!");
-
-                Console.WriteLine("\nSummary:\n");
-                Console.WriteLine($"Title: {gamesList[gamesList.Count - 1].Title}");
-                Console.WriteLine($"Year: {gamesList[gamesList.Count - 1].Year}");
-                Console.WriteLine($"Genre: {gamesList[gamesList.Count - 1].Genre}");
-                Console.WriteLine($"Players: {gamesList[gamesList.Count - 1].Players}");
-                Console.WriteLine($"Condition: {gamesList[gamesList.Count - 1].Condition}");
-                Console.WriteLine($"Price: {gamesList[gamesList.Count - 1].Price}\n");
-
-                Console.WriteLine("Press <enter> to return to the menu.");
-                Console.ReadLine();
                 Console.Clear();
-                AddEditRemoveMenu();
+                // Search for the game with the specified ID from parameter.
+                Game game = gamesList.FirstOrDefault(g => g.Id == id);
+
+                if (game != null)
+                {
+                    Console.WriteLine("\nSummary:\n");
+                    Console.WriteLine($"Title: {game.Title}");
+                    Console.WriteLine($"Year: {game.Year}");
+                    Console.WriteLine($"Genre: {game.Genre}");
+                    Console.WriteLine($"Players: {game.Players}");
+                    Console.WriteLine($"Condition: {game.Condition}");
+                    Console.WriteLine($"Price: {game.Price}\n");
+
+                    Console.WriteLine("Press <enter> to return.");
+                    Console.ReadLine();
+                    Console.Clear();
+                    return;
+                }
             }
         }
 
         // Method to Read (Shows information for each game in gamesList).
-        public void ShowGames()
+        public void ShowGames(List<Game> gamesToDisplay)
         {
-            Console.WriteLine("Games overview: \n");
-            foreach (Game game in gamesList)
+            int i = 1;
+            Console.WriteLine("Games found: \n");
+            foreach (Game game in gamesToDisplay)
             {
                 Console.WriteLine($"Game Entry no.: {i}");
+                Console.WriteLine($"Game Id: {game.Id}");
                 Console.WriteLine($"Title: {game.Title}");
                 Console.WriteLine($"Year: {game.Year}");
                 Console.WriteLine($"Genre: {game.Genre}");
                 Console.WriteLine($"Players (x-y): {game.Players}");
                 Console.WriteLine($"Condition: {game.Condition}");
                 Console.WriteLine($"Price (DKK): {game.Price}");
+                Console.WriteLine("Stock: {0}", game.Stock == true ? "Yes" : "No");
+
                 // Adds a blank line between each game.
                 Console.WriteLine();
                 i++;
             }
-            Console.WriteLine("Press <enter> to return to menu.");
+            Console.WriteLine("End of list. Press <enter> to return to menu.");
             Console.ReadLine();
             i = 1;
             return;
         }
 
-        // Method to Update (User selects an already existing game entry in gamesList).
-        // Add option to search for game to find the ID of a game to delete? (same issue as in DeleteGame(), user needs to know the ID beforehand).
-        // Needs to reset variables: id, editNewGameField and valueNewGameField, after using them.
+
+        // Method to Update
         public void UpdateGame()
         {
             Console.Clear();
 
-            try
-            {
-                Console.Write("Please write the ID of the game to update: ");
-                int.TryParse(Console.ReadLine(), out id);
+            Game game = GetGameById(gamesList);
 
-                Console.WriteLine($"You have selected {gamesList[id - 1].Title} to update. Is this correct? (Y/N)");
+            if (game != null)
+            {
+                Console.WriteLine($"You have selected {game.Title} to update. Is this correct? (Y/N)");
                 verifyChoice = Console.ReadLine().ToLower();
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("You entered something invalid. Press <enter> to try again.");
-                Console.ReadLine();
-                Console.Clear();
-                UpdateGame();
-            }
 
-            if (verifyChoice == "y")
-            {
-                UpdateField();
-                return;
+                if (verifyChoice.ToLower() == "y")
+                {
+                    UpdateField(game);
+                    return;
+                }
+                else
+                {
+                    UpdateGame();
+                }
             }
             else
             {
+                Console.WriteLine("You entered something invalid. Press <enter> to try again.");
+                Console.ReadLine();
                 UpdateGame();
             }
 
@@ -224,51 +293,51 @@ namespace ProjektGenspil
         }
 
         // Method for updating fields in UpdateGame() and VerifyNewGame();
-        // Add option to update more fields?
-        public void UpdateField()
+        // Needs to reset variables: id, editNewGameField and valueNewGameField, after using them ?
+        public void UpdateField(Game game)
         {
             Console.Clear();
 
             Console.WriteLine("Summary: \n");
-            Console.WriteLine($"Title: {gamesList[id - 1].Title}");
-            Console.WriteLine($"Year: {gamesList[id - 1].Year}");
-            Console.WriteLine($"Genre: {gamesList[id - 1].Genre}");
-            Console.WriteLine($"Players: {gamesList[id - 1].Players}");
-            Console.WriteLine($"Condition: {gamesList[id - 1].Condition}");
-            Console.WriteLine($"Price: {gamesList[id - 1].Price}");
+            Console.WriteLine($"Title: {game.Title}");
+            Console.WriteLine($"Year: {game.Year}");
+            Console.WriteLine($"Genre: {game.Genre}");
+            Console.WriteLine($"Players: {game.Players}");
+            Console.WriteLine($"Condition: {game.Condition}");
+            Console.WriteLine($"Price: {game.Price}");
 
-            Console.Write("\nSelect a field to correct: (Title, Year, etc.): ");
+            Console.Write("\nSelect a field to correct (write its name): ");
             // Need validation of user input here, valueNewGameField is validated in the switch
-            var editNewGameField = Console.ReadLine();
-            Console.Write($"Please enter the correct value for {editNewGameField}: ");
-            var valueNewGameField = Console.ReadLine();
+            var gameField = Console.ReadLine();
+            Console.Write($"Please enter the updated value for {gameField}: ");
+            var fieldValue = Console.ReadLine();
 
             try
             {
-                switch (editNewGameField.ToLower())
+                switch (gameField.ToLower())
                 {
                     case "title":
-                        gamesList[id - 1].Title = valueNewGameField;
+                        game.Title = fieldValue;
                         break;
                     case "year":
-                        gamesList[id - 1].Year = int.Parse(valueNewGameField);
+                        game.Year = int.Parse(fieldValue);
                         break;
                     case "genre":
-                        gamesList[id - 1].Genre = valueNewGameField;
+                        game.Genre = fieldValue;
                         break;
                     case "players":
-                        gamesList[id - 1].Players = valueNewGameField;
+                        game.Players = fieldValue;
                         break;
                     case "condition":
-                        gamesList[id - 1].Condition = int.Parse(valueNewGameField);
+                        game.Condition = int.Parse(fieldValue);
                         break;
                     case "price":
-                        gamesList[id - 1].Price = int.Parse(valueNewGameField);
+                        game.Price = int.Parse(fieldValue);
                         break;
                     default:
                         Console.WriteLine("Invalid field name. Press <enter> to try again.");
                         Console.ReadLine();
-                        UpdateField();
+                        UpdateField(game);
                         break;
                 }
             }
@@ -277,47 +346,68 @@ namespace ProjektGenspil
                 Console.WriteLine("You entered something invalid. Press <enter> to try again.");
                 Console.ReadLine();
                 Console.Clear();
-                UpdateField();
+                UpdateField(game);
             }
-            id = 0;
 
             Console.Clear();
-            Console.WriteLine($"You succesfully updated {editNewGameField} to \"{valueNewGameField}\". Press <enter> to return to the menu.");
+            Console.WriteLine($"{gameField} was succesfully updated to \"{fieldValue}\". Press <enter> to return to the menu.");
             Console.ReadLine();
             Console.Clear();
-            AddEditRemoveMenu();
+            return;
+        }
+
+        // A method for retrieivng a game by its ID and returning that specific object.
+        public Game GetGameById(List<Game> gamesList)
+        {
+            int id;
+            Console.Write("Please write the ID of the game: ");
+            if (!int.TryParse(Console.ReadLine(), out id))
+            {
+                Console.WriteLine("Invalid ID. Please enter a valid integer ID.");
+                return null;
+            }
+
+            // Search for the game with the specified ID from parameter.
+            Game game = gamesList.FirstOrDefault(g => g.Id == id);
+
+            if (game == null)
+            {
+                Console.WriteLine($"Game with ID {id} not found.");
+            }
+
+            return game;
         }
 
         // Method for Delete (Removes a game from the gamesList).
         // Add option to exit to menu if no game is to be deleted.
-        // Add option to search for game to find id of game to delete?
         // Deletion must also remove the game in the txt.file, not just the list. Maybe write entire gamesList back out to file after deletion? (overwriting it all).
         public void DeleteGame() 
         {
             try
             {
-                Console.Write("Please write the ID of the game to delete: ");
-                int.TryParse(Console.ReadLine(), out id);
+                Game game = GetGameById(gamesList);                
 
-                Console.WriteLine($"You have selected {gamesList[id-1].Title} for deletion. Is this correct? (Y/N)");
-                verifyChoice = Console.ReadLine().ToLower();
+                if (game != null)
+                {
+                    Console.WriteLine($"You have selected {game.Title} to update. Is this correct? (Y/N)");
+                    verifyChoice = Console.ReadLine().ToLower();
 
-                if (verifyChoice == "y")
-                {
-                    Console.Clear();
-                    Console.WriteLine($"You have succesfully deleted the game, {gamesList[id-1].Title}! \n\nPress <enter> to return to menu...");
-                    gamesList.RemoveAt(id - 1);
-                    Console.ReadLine();
-                    verifyChoice = "";
-                    AddEditRemoveMenu();
-                }
-                else
-                {
-                    Console.Clear();
-                    DeleteGame();
+                    if (verifyChoice.ToLower() == "y")
+                    {
+                        Console.Clear();
+                        Console.WriteLine($"You have succesfully deleted the game, {game.Title}! \n\nPress <enter> to return to menu...");
+                        gamesList.RemoveAt(gamesList.IndexOf(game));
+                        Console.ReadLine();
+                        AddEditRemoveMenu();
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        DeleteGame();
+                    }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Console.WriteLine("You entered something incorrect. Press <enter> to try again.");
                 Console.ReadLine();

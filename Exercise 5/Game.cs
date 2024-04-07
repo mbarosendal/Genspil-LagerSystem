@@ -8,19 +8,22 @@ namespace ProjektGenspil
 {
     public class Game
     {
+        private static int nextId = 1;
+        public int Id { get; private set; }
         public string Title { get; set; }
         public int Year { get; set; }
         public string Genre { get; set; }
         public string Players { get; set; }
         public int Condition { get; set; }
         public int Price { get; set; }
-        //public bool Stock { get; set; } // set stock status, if added: add a 7th data field to ALL methods... in StreamReader and in GenspilGames.txt (true/false)
-        //public bool Requested { get; set } // set if game has been requested, if added: add an 8th data field to ALL methods...^^ (true/false)
+        public bool Stock { get; set; }
+        //public bool Requested { get; set }
 
         // The constructor.
-        public Game(string title, int year, string genre, string players, int condition, int price/*, int stock*/)
+        public Game(string title, int year, string genre, string players, int condition, int price/*, bool stock*/)
         {
-            this.Title = title;
+            this.Id = nextId++;
+            this.Title = title/*.ToLower() for searching?*/;
             this.Year = year;
             this.Genre = genre;
             this.Players = players;

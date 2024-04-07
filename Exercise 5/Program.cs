@@ -22,11 +22,11 @@ while (true)
         // Show the menu.
         case 1:
             Console.Clear();
-            newMenu.ShowGames();    // ++ sort, print
+            newMenu.ShowGames(newMenu.gamesList);;    // ++ sort, print
             continue;
         case 2:
             Console.Clear();
-            //newMenu.SearchGames();
+            newMenu.SearchGames();
             continue;
         case 3:
             Console.Clear();
