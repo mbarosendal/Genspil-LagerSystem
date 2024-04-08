@@ -6,17 +6,21 @@ newMenu.LoadGamesFromFile();
 Console.Write("Welcome to Genspil menusystem! Please press enter to proceed to the menu. ");
 Console.ReadLine();
 
-// Keeps user in the loop.
+// Keeps user in the main menu.
 while (true)
 {
     Console.Clear();
-    Console.WriteLine("Please select an option below: \n");
+    Console.WriteLine("Main Menu:\n");
 
-    Console.Write("1) Show games \n2) Search games \n3) Add, edit or remove games Exit \n4) Show requests \n5) Exit \n\nPlease select an option: ");
+    Console.WriteLine("1) Show games");
+    Console.WriteLine("2) Search games");
+    Console.WriteLine("3) Add, edit or remove games");
+    Console.WriteLine("4) Show requests");
+    Console.WriteLine("5) Exit ");
 
+    Console.Write("\nPlease select an option (#): ");
     int menuChoice = int.Parse(Console.ReadLine());
 
-    // Top menu.
     switch (menuChoice)
     {
         // Show the menu.

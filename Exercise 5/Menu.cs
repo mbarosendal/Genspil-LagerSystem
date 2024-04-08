@@ -17,7 +17,7 @@ namespace ProjektGenspil
         // List that holds instances of Game.cs.
         public List<Game> gamesList = new List<Game>();
 
-        // To search for multiple games, keep the list, and ask if they want to search for additonal search criteria? Loop around so both searches are added to list?
+        // To search for multiple games, keep the list, and ask after switch if they want to search for additonal search criteria? Loop around so both search results are added to list?
         public void SearchGames()
         {
             Console.Clear();
@@ -25,24 +25,24 @@ namespace ProjektGenspil
             // A list to hold the game objects that meet the search criteria.
             List<Game> searchResults = new List<Game>();
 
-            string[] criterias = { "Name", "Price", "Condition", "Players", "Stock", "Requested" };
+            string[] criterias = { "title", "genre", "players", "condition", "price" };
 
             Console.WriteLine("Available search criteria:\n");
             Console.WriteLine("1) Title");
             Console.WriteLine("2) Genre");
             Console.WriteLine("3) Players");
-            Console.WriteLine("4) Price");
-            Console.WriteLine("5) Condition (1-10)");
+            Console.WriteLine("4) Condition (1-10)");
+            Console.WriteLine("5) Price");
             Console.WriteLine("6) In stock");
             Console.WriteLine("7) Requested\n");
 
             Console.Write("Enter search criteria (#): ");
             int.TryParse(Console.ReadLine(), out int criteria);
 
-            // If "In stock" or "Requested" is chosen, no search value is necessary. Otherwise, ask for search value.
+            // If "In stock" or "Requested" is chosen, no search value is necessary (user is likely searching for "true"). Otherwise, ask for search value.
             if (criteria != 6 && criteria != 7) 
             {
-                Console.Write($"Enter search value for {criterias[criteria - 2]}: ");
+                Console.Write($"Enter search value for {criterias[criteria - 1]}: ");
                 searchValue = Console.ReadLine().ToLower();
             }
 
@@ -51,6 +51,7 @@ namespace ProjektGenspil
                 switch (criteria)
                 {
                     case 1:
+                        // Lambda expression to search through objects in gamesList, and look for one, where the Title property contains the searchValue. Return found as a list, since searchResults is a list.
                         searchResults = gamesList.Where(game => game.Title.ToLower().Contains(searchValue)).ToList();
                         break;
                     case 2:
@@ -60,12 +61,12 @@ namespace ProjektGenspil
                         searchResults = gamesList.Where(game => game.Players.ToLower().Contains(searchValue)).ToList();
                         break;
                     case 4:
-                        int price = int.Parse(searchValue);
-                        searchResults = gamesList.Where(game => game.Price == price).ToList();
-                        break;
-                    case 5:
                         int condition = int.Parse(searchValue);
                         searchResults = gamesList.Where(game => game.Condition == condition).ToList();
+                        break;
+                    case 5:
+                        int price = int.Parse(searchValue);
+                        searchResults = gamesList.Where(game => game.Price == price).ToList();
                         break;
                     case 6:
                         searchResults = gamesList.Where(game => game.Stock == true).ToList();
@@ -108,7 +109,7 @@ namespace ProjektGenspil
         {
             try
             {
-                // Loads a pre-set file instead of a specified file.
+                // Loads a pre-set file with a set path.
                 using (StreamReader sr = new StreamReader("C:\\Users\\mbaro\\Desktop\\GenspilGames.txt"))
                 {
                     string line;
@@ -152,6 +153,7 @@ namespace ProjektGenspil
             Console.Clear();
             while (true)
             {
+                Console.WriteLine("Submenu: \n");
                 Console.WriteLine("1) Add a new game");
                 Console.WriteLine("2) Update a game");
                 Console.WriteLine("3) Remove a game");
@@ -164,14 +166,17 @@ namespace ProjektGenspil
                     case 1:
                         Console.Clear();
                         this.AddGames();
+                        Console.Clear();
                         continue;
                     case 2:
                         Console.Clear();
                         this.UpdateGame();
+                        Console.Clear();
                         continue;
                     case 3:
                         Console.Clear();
                         this.DeleteGame();
+                        Console.Clear();
                         continue;
                     case 4:
                         Console.Clear();
@@ -183,7 +188,6 @@ namespace ProjektGenspil
                 }
             }
         }
-
 
         // Method to Create (Adds a new game instance to gamesList).
         // Tilføj evt. bekræftelse, om bruger vil tilføje nyt spil, ellers skal de igennem hele opsætningen, og endda slette det igen bagefter.
@@ -221,50 +225,49 @@ namespace ProjektGenspil
             }
             catch (Exception)
             {
-                Console.WriteLine("You entered something invalid. Press <enter> to try again.");
+                Console.Write("You entered something invalid. Press <enter> to try again.");
                 Console.ReadLine();
                 Console.Clear();
                 AddGames();
             }
 
-            GameSummary(gamesList[gamesList.Count - 1].Id);
+            GameSummary(gamesList[gamesList.Count - 1]);
+            Console.Write("\nPress <enter> to continue.");
+            Console.ReadLine();
+            return;
         }
 
-        // Method for summarizing a newly created game. (too specific? delete?) Make into a more generic method to print verifying information on a single game for both AddGame() UpdateGame() and DeleteGame() taking ID as parameter?
-        public void GameSummary(int id)
-        {
-            while (true)
+        // Method for summarizing a newly created game. It's used by AddGame(), UpdateField(), 
+        public void GameSummary(Game game)
+        {   
+            Console.Clear();
+
+            Console.WriteLine("Summary of game: \n");
+
+            Console.WriteLine($"1) Title: {game.Title}");
+            Console.WriteLine($"2) Year: {game.Year}");
+            Console.WriteLine($"3) Genre: {game.Genre}");
+            Console.WriteLine($"4) Players: {game.Players}");
+            Console.WriteLine($"5) Condition: {game.Condition}");
+            Console.WriteLine($"6) Price: {game.Price}");
+            Console.WriteLine("7) Stock: {0}", game.Stock == true ? "Yes" : "No");
+            Console.WriteLine("8) Requested: {0}", game.Requested == true ? "Yes" : "No");
+            if (game.Requested == true)
             {
-                Console.Clear();
-                // Search for the game with the specified ID from parameter.
-                Game game = gamesList.FirstOrDefault(g => g.Id == id);
-
-                if (game != null)
-                {
-                    Console.WriteLine("\nSummary:\n");
-                    Console.WriteLine($"Title: {game.Title}");
-                    Console.WriteLine($"Year: {game.Year}");
-                    Console.WriteLine($"Genre: {game.Genre}");
-                    Console.WriteLine($"Players: {game.Players}");
-                    Console.WriteLine($"Condition: {game.Condition}");
-                    Console.WriteLine($"Price: {game.Price}\n");
-
-                    Console.Write("Press <enter> to return.");
-                    Console.ReadLine();
-                    Console.Clear();
-                    return;
-                }
+                Console.WriteLine($"9) Requested by: {game.RequestedBy}");
             }
+
+            return;
         }
 
-        // Method to Read (Shows information for each game in gamesList).
+        // Method to Read (Shows information for each game in gamesToDisplay). It's used both to show all games and the SearchGames() method.
         public void ShowGames(List<Game> gamesToDisplay)
         {
-            int i = 1;
-            Console.WriteLine("Games found: {0} \n", gamesToDisplay.Count());
+            //int i = 1;
+            Console.WriteLine("Results: \n");
             foreach (Game game in gamesToDisplay)
             {
-                Console.WriteLine($"Entry no.: {i}");
+                //Console.WriteLine($"Entry no.: {i}");
                 Console.WriteLine($"Game Id: {game.Id}");
                 Console.WriteLine($"Title: {game.Title}");
                 Console.WriteLine($"Year: {game.Year}");
@@ -281,11 +284,12 @@ namespace ProjektGenspil
 
                 // Adds a blank line between each game.
                 Console.WriteLine();
-                i++;
+                //i++;
             }
-            Console.Write("End of list. Press <enter> to return to menu.");
+            Console.WriteLine("Games found: {0} \n", gamesToDisplay.Count());
+            Console.Write("Press <enter> to continue.");
             Console.ReadLine();
-            i = 1;
+            //i = 1;
             return;
         }
 
@@ -299,7 +303,7 @@ namespace ProjektGenspil
 
             if (game != null)
             {
-                Console.WriteLine($"You have selected {game.Title} to update. Is this correct? (Y/N)");
+                Console.WriteLine($"You have selected {game.Title}. Is this correct? (Y/N)");
                 verifyChoice = Console.ReadLine().ToLower();
 
                 if (verifyChoice.ToLower() == "y")
@@ -307,14 +311,18 @@ namespace ProjektGenspil
                     UpdateField(game);
                     return;
                 }
+                else if (verifyChoice.ToLower() == "n")
+                    UpdateGame();
                 else
                 {
+                    Console.WriteLine("You entered something invalid. Press <enter> to try again.");
+                    Console.ReadLine();
                     UpdateGame();
                 }
             }
             else
             {
-                Console.WriteLine("You entered something invalid. Press <enter> to try again.");
+                Console.Write("Press <enter> to try again.");
                 Console.ReadLine();
                 UpdateGame();
             }
@@ -329,26 +337,21 @@ namespace ProjektGenspil
             Console.Clear();
             string fieldValue = "";
 
-            Console.WriteLine($"1) Title: {game.Title}");
-            Console.WriteLine($"2) Year: {game.Year}");
-            Console.WriteLine($"3) Genre: {game.Genre}");
-            Console.WriteLine($"4) Players: {game.Players}");
-            Console.WriteLine($"5) Condition: {game.Condition}");
-            Console.WriteLine($"6) Price: {game.Price}");
-            Console.WriteLine("7) Stock: {0}", game.Stock == true ? "Yes" : "No");
-            Console.WriteLine("8) Requested: {0}", game.Requested == true ? "Yes" : "No");
-            if ( game.Requested == true )
-            {
-                Console.WriteLine($"9) Requested by: {game.RequestedBy}");
-            }
+            GameSummary(game);
 
             Console.Write("\nSelect a field to correct (#): ");
             int.TryParse(Console.ReadLine(), out int gameField);
 
-            // If "In stock" or "Requested" is chosen, no search value is necessary. The bools are just flipped. Otherwise, ask for search value.
-            if (gameField != 7 && gameField != 8)
+            // If "Requested" is chosen, also ask who it was requested by. The "Requested"-bool is just flipped.
+            if (gameField == 8)
             {
-                Console.Write($"Please enter the updated value for {gameField}: ");
+                Console.Write("Please enter who it was requested by: ");
+                fieldValue = Console.ReadLine();
+            }
+            // If "In stock" is chosen, no updated value is necessary. The "Stock"-bool is just flipped. Otherwise, ask for updated value.
+            else if (gameField != 7/* && gameField != 8*/)
+            {
+                Console.Write($"Please enter the updated value: ");
                 fieldValue = Console.ReadLine();
             }
 
@@ -380,6 +383,7 @@ namespace ProjektGenspil
                         break;
                     case 8:
                         game.Requested = !game.Requested;
+                        game.RequestedBy = fieldValue;
                         break;
                     case 9:
                         game.RequestedBy = fieldValue;
@@ -399,26 +403,21 @@ namespace ProjektGenspil
                 UpdateField(game);
             }
 
-            Console.Clear();
-            Console.Write($"{gameField} was succesfully updated. Press <enter> to return to the menu.");
+            GameSummary(game);
+            Console.Write($"\n{game.Title} was succesfully updated. \nPress <enter> to continue.");
             Console.ReadLine();
-            Console.Clear();
             return;
         }
 
-        // A method for retrieivng a game by its ID and returning that specific object.
+        // A method for retrieivng a game by its ID and returning that specific game object.
         public Game GetGameById(List<Game> gamesList)
         {
             int id;
             Console.Write("Please write the ID of the game: ");
-            if (!int.TryParse(Console.ReadLine(), out id))
-            {
-                Console.WriteLine("Invalid ID. Please enter a valid integer ID.");
-                return null;
-            }
+            int.TryParse(Console.ReadLine(), out id);
 
-            // Search for the game with the specified ID from parameter.
-            Game game = gamesList.FirstOrDefault(g => g.Id == id);
+            // Search for the game with the parameter IDs.
+            Game game = gamesList.FirstOrDefault(game => game.Id == id);
 
             if (game == null)
             {
@@ -429,23 +428,24 @@ namespace ProjektGenspil
         }
 
         // Method for Delete (Removes a game from the gamesList).
-        // Add option to exit to menu if no game is to be deleted.
-        // Deletion must also remove the game in the txt.file, not just the list. Maybe write entire gamesList back out to file after deletion? (overwriting it all).
+        // Deletion must also remove the game in the txt.file, not just the list? Maybe write entire gamesList back out to file after deletion? (overwriting it all) or just have separate save option in main menu.
         public void DeleteGame() 
         {
             try
             {
-                Game game = GetGameById(gamesList);                
+                Game game = GetGameById(gamesList);
+
+                GameSummary(game);
 
                 if (game != null)
                 {
-                    Console.WriteLine($"You have selected {game.Title} to update. Is this correct? (Y/N)");
+                    Console.Write($"\nDo you want to remove this entry? (This cannot be undone!) (Y/N)");
                     verifyChoice = Console.ReadLine().ToLower();
 
                     if (verifyChoice.ToLower() == "y")
                     {
                         Console.Clear();
-                        Console.Write($"You have succesfully deleted the game, {game.Title}! \n\nPress <enter> to return to menu...");
+                        Console.Write($"You have succesfully deleted the game, {game.Title}! \n\nPress <enter> to continue.");
                         gamesList.RemoveAt(gamesList.IndexOf(game));
                         Console.ReadLine();
                         AddEditRemoveMenu();
