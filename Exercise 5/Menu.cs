@@ -38,9 +38,15 @@ namespace ProjektGenspil
 
             Console.Write("Enter search criteria (#): ");
             int.TryParse(Console.ReadLine(), out int criteria);
-
+                        
+            if (criteria > 7)
+            {
+                Console.WriteLine("Please select a valid option. Press <enter> to try again.");
+                Console.ReadLine();
+                SearchGames();
+            }
             // If "In stock" or "Requested" is chosen, no search value is necessary (user is likely searching for "true"). Otherwise, ask for search value.
-            if (criteria != 6 && criteria != 7) 
+            else if (criteria != 6 && criteria != 7) 
             {
                 Console.Write($"Enter search value for {criterias[criteria - 1]}: ");
                 searchValue = Console.ReadLine().ToLower();
