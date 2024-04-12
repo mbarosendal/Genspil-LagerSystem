@@ -13,100 +13,9 @@ namespace GenspilSystem
     internal class Menu
     {         
         // List that holds instances of Game.cs.
-        public List<Game> gamesList = new List<Game>();
+        public List<Game> gamesList = new List<Game>();                
 
-        // Method to search gamesList based on user input.
-        public void SearchGames()
-        {
-            Console.Clear();
-            string searchValue = "";
-            // A list to hold the game objects that meet the search criteria.
-            List<Game> searchResults = new List<Game>();
-
-            string[] criterias = { "title", "genre", "players", "condition", "price" };
-
-            Console.WriteLine("Available search criteria:\n");
-            Console.WriteLine("1) Title");
-            Console.WriteLine("2) Genre");
-            Console.WriteLine("3) Players");
-            Console.WriteLine("4) Condition (1-10)");
-            Console.WriteLine("5) Price");
-            Console.WriteLine("6) In stock");
-            Console.WriteLine("7) Requested\n");
-
-            Console.Write("Enter search criteria (#): ");
-            int.TryParse(Console.ReadLine(), out int criteria);
-                        
-            if (criteria > 7)
-            {
-                Console.WriteLine("Please select a valid option. Press <enter> to try again.");
-                Console.ReadLine();
-                SearchGames();
-            }
-            // If "In stock" or "Requested" is chosen, no search value is necessary (user is likely searching for "true"). Otherwise, ask for search value.
-            else if (criteria != 6 && criteria != 7) 
-            {
-                Console.Write($"Enter search value for {criterias[criteria - 1]}: ");
-                searchValue = Console.ReadLine().ToLower();
-            }
-
-            try
-            {
-                switch (criteria)
-                {
-                    case 1:
-                        // Lambda expression to search through objects in gamesList, and look for one, where the Title property contains the searchValue. Return found as a list, since searchResults is a list.
-                        searchResults = gamesList.Where(game => game.Title.ToLower().Contains(searchValue)).ToList();
-                        break;
-                    case 2:
-                        searchResults = gamesList.Where(game => game.Genre.ToLower().Contains(searchValue)).ToList();
-                        break;
-                    case 3:
-                        searchResults = gamesList.Where(game => game.Players.ToLower().Contains(searchValue)).ToList();
-                        break;
-                    case 4:
-                        int condition = int.Parse(searchValue);
-                        searchResults = gamesList.Where(game => game.Condition == condition).ToList();
-                        break;
-                    case 5:
-                        int price = int.Parse(searchValue);
-                        searchResults = gamesList.Where(game => game.Price == price).ToList();
-                        break;
-                    case 6:
-                        searchResults = gamesList.Where(game => game.Stock == true).ToList();
-                        break;
-                    case 7:
-                        searchResults = gamesList.Where(game => game.Requested == true).ToList();
-                        break;
-                    default:
-                        Console.WriteLine("Invalid search criteria. Press <enter> to try again.");
-                        Console.ReadLine();
-                        SearchGames();
-                        return;
-                }
-
-                if (searchResults.Count > 0)
-                {
-                    Console.Clear();
-                    ShowGames(searchResults);
-                    return;
-                }
-                else
-                {
-                    Console.WriteLine("No games found matching the search criteria. Press <enter> to try again.");
-                    Console.ReadLine();
-                    SearchGames();
-                }
-            }
-            catch (FormatException)
-            {
-                Console.WriteLine("Invalid value format. Press <enter> to try again.");
-                Console.ReadLine();
-                SearchGames();
-            }
-
-            return;
-        }
+// CONSOLE SETUP METHOD, AND SYSTEM METHODS FOR SAVING AND LOADING
 
         // Method to set the name and size (full screen) of the console window at lunch automatically.
         public void ConsoleWindowSetup()
@@ -116,7 +25,7 @@ namespace GenspilSystem
             Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
         }
 
-        //Method to load a public .txt file from Google Drive (but saving cannot be done using this method, only locally).
+        //Method to load a public .txt file from Google Drive (for our ease of use, but saving cannot be done using this method, only locally).
         public async Task LoadGamesFromFile()
         {
             try
@@ -164,8 +73,7 @@ namespace GenspilSystem
             }
         }
 
-
-        // Method to save the game objects in gamesList to a file (GenspilGamesSave!) on desktop.
+        // Method to save the game objects in gamesList to a file (GenspilGamesSave!) on user desktop.
         public void SaveToFileFromList()
         {
             try
@@ -194,6 +102,8 @@ namespace GenspilSystem
             }
         }
 
+// METHOD FOR SHOWING SUBMENU TO ACCESS CRUD METHODS.
+
         // Menu for Create, Update, Delete (Reading is done with ShowGames()).
         public void AddEditRemoveMenu()
         {
@@ -214,7 +124,7 @@ namespace GenspilSystem
                 {
                     case 1:
                         Console.Clear();
-                        this.AddGames();
+                        this.AddGame();
                         Console.Clear();
                         continue;
                     case 2:
@@ -238,8 +148,14 @@ namespace GenspilSystem
             }
         }
 
-        // Method to Create (Adds a new game instance to gamesList).
-        public void AddGames()
+// METHODS FOR CRUD:
+// (C)reating game objects (AddGame())
+// (R)eading game objects (GameSummary() and ShowGames())
+// (U)pdating game objects (UpdateGame())
+// (D)eleting game objects (DeleteGame())
+
+        // Method for creating a game object (adds a new game object to gamesList).
+        public void AddGame()
         {
             string requestedBy = "";
             Console.WriteLine("Enter the following information: \n");
@@ -275,7 +191,7 @@ namespace GenspilSystem
                 Console.Write("You entered something invalid. Press <enter> to try again.");
                 Console.ReadLine();
                 Console.Clear();
-                AddGames();
+                AddGame();
             }
 
             GameSummary(gamesList[gamesList.Count - 1]);
@@ -284,7 +200,7 @@ namespace GenspilSystem
             return;
         }
 
-        // Method for summarizing a game. It's used by AddGame() and UpdateField().
+        // Method for reading a SINGLE game object's properties. It's used by AddGame() and UpdateGame().
         public void GameSummary(Game game)
         {   
             Console.Clear();
@@ -313,7 +229,7 @@ namespace GenspilSystem
             return;
         }
 
-        // Method to Read (Shows information for each game in gamesToDisplay). It's used both to show all games and in the SearchGames() method.
+        // Method for reading the properties of ALL game objects in gamesToDisplay (gamesList). It's used by ShowGames() and SearchGames().
         public void ShowGames(List<Game> gamesToDisplay)
         {
             if (gamesToDisplay == null) 
@@ -355,6 +271,7 @@ namespace GenspilSystem
             return;
         }
 
+        // Method for updating the properties of a game object.
         public void UpdateGame()
         {
             Console.Clear();
@@ -459,30 +376,9 @@ namespace GenspilSystem
             }
 
             AddEditRemoveMenu();
-        }
+        }        
 
-
-        // A method for retrieivng a game by its ID and returning that specific game object.
-        public Game GetGameById(List<Game> gamesList)
-        {
-            int id;
-            Console.Write("Please write the ID of the game: ");
-            int.TryParse(Console.ReadLine(), out id);
-
-            // Search gamesList for the game object with the id from user input and return it if found.
-            Game game = gamesList.FirstOrDefault(game => game.Id == id);
-
-            if (game == null)
-            {
-                Console.WriteLine($"Game with ID {id} not found. Press <enter> to return to menu.");
-                Console.ReadLine();
-                return null;
-            }
-
-            return game;
-        }
-
-        // Method for Delete (Removes a game from the gamesList).
+        // Method for deleting game objects (removes a game object from the gamesList).
         public void DeleteGame() 
         {
             try
@@ -526,6 +422,123 @@ namespace GenspilSystem
                 DeleteGame();
             }
 
+        }
+
+// SEARCH METHODS FOR GAME OBJECTS:
+// By ID (GetGameById()
+// By user input (SearchGames())
+
+        // A method for retrieivng a game by its ID and returning that specific game object.
+        public Game GetGameById(List<Game> gamesList)
+        {
+            int id;
+            Console.Write("Please write the ID of the game: ");
+            int.TryParse(Console.ReadLine(), out id);
+
+            // Search gamesList for the game object with the id from user input and return it if found.
+            Game game = gamesList.FirstOrDefault(game => game.Id == id);
+
+            if (game == null)
+            {
+                Console.WriteLine($"Game with ID {id} not found. Press <enter> to return to menu.");
+                Console.ReadLine();
+                return null;
+            }
+
+            return game;
+        }
+
+        // Method to search gamesList based on user input.
+        public void SearchGames()
+        {
+            Console.Clear();
+            string searchValue = "";
+            // A list to hold the game objects that meet the search criteria.
+            List<Game> searchResults = new List<Game>();
+
+            string[] criterias = { "title", "genre", "players", "condition", "price" };
+
+            Console.WriteLine("Available search criteria:\n");
+            Console.WriteLine("1) Title");
+            Console.WriteLine("2) Genre");
+            Console.WriteLine("3) Players");
+            Console.WriteLine("4) Condition (1-10)");
+            Console.WriteLine("5) Price");
+            Console.WriteLine("6) In stock");
+            Console.WriteLine("7) Requested\n");
+
+            Console.Write("Enter search criteria (#): ");
+            int.TryParse(Console.ReadLine(), out int criteria);
+
+            if (criteria > 7)
+            {
+                Console.WriteLine("Please select a valid option. Press <enter> to try again.");
+                Console.ReadLine();
+                SearchGames();
+            }
+            // If "In stock" or "Requested" is chosen, no search value is necessary (user is likely searching for "true"). Otherwise, ask for search value.
+            else if (criteria != 6 && criteria != 7)
+            {
+                Console.Write($"Enter search value for {criterias[criteria - 1]}: ");
+                searchValue = Console.ReadLine().ToLower();
+            }
+
+            try
+            {
+                switch (criteria)
+                {
+                    case 1:
+                        // Lambda expression to search through objects in gamesList, and look for one, where the Title property contains the searchValue. Return found as a list, since searchResults is a list.
+                        searchResults = gamesList.Where(game => game.Title.ToLower().Contains(searchValue)).ToList();
+                        break;
+                    case 2:
+                        searchResults = gamesList.Where(game => game.Genre.ToLower().Contains(searchValue)).ToList();
+                        break;
+                    case 3:
+                        searchResults = gamesList.Where(game => game.Players.ToLower().Contains(searchValue)).ToList();
+                        break;
+                    case 4:
+                        int condition = int.Parse(searchValue);
+                        searchResults = gamesList.Where(game => game.Condition == condition).ToList();
+                        break;
+                    case 5:
+                        int price = int.Parse(searchValue);
+                        searchResults = gamesList.Where(game => game.Price == price).ToList();
+                        break;
+                    case 6:
+                        searchResults = gamesList.Where(game => game.Stock == true).ToList();
+                        break;
+                    case 7:
+                        searchResults = gamesList.Where(game => game.Requested == true).ToList();
+                        break;
+                    default:
+                        Console.WriteLine("Invalid search criteria. Press <enter> to try again.");
+                        Console.ReadLine();
+                        SearchGames();
+                        return;
+                }
+
+                if (searchResults.Count > 0)
+                {
+                    Console.Clear();
+                    ShowGames(searchResults);
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("No games found matching the search criteria. Press <enter> to try again.");
+                    Console.ReadLine();
+                    SearchGames();
+                }
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Invalid value format. Press <enter> to try again.");
+                Console.ReadLine();
+                SearchGames();
+            }
+
+            return;
         }
 
     }
