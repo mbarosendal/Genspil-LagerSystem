@@ -8,119 +8,14 @@ using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace ProjektGenspil
+namespace GenspilSystem
 {
     internal class Menu
-    {
-        // String for verifying user choice in VerifyNewGame() and DeleteGame().
-        string verifyChoice;
+    {         
         // List that holds instances of Game.cs.
         public List<Game> gamesList = new List<Game>();
 
-        public void PrintStock(List<Game> gamesToSort)
-        {
-            Console.Clear();
-            DateTime currentTime = DateTime.Now;
-            List<Game> sortedGames = null;
-            string sortedBy = "";
-
-            Console.WriteLine("Options to sort by: \n");
-            Console.WriteLine("1) By title");
-            Console.WriteLine("2) By genre");
-            Console.Write("\nHow do you want to sort the inventory? (#) ");
-            int.TryParse(Console.ReadLine(), out int sortby);
-
-            switch (sortby)
-            {                
-                case 1:
-                    sortedBy = "Title";
-                    sortedGames = QuickSort(gamesToSort, 0, gamesToSort.Count - 1, "title");
-                    break;
-                case 2:
-                    sortedBy = "Genre";
-                    sortedGames = QuickSort(gamesToSort, 0, gamesToSort.Count - 1, "genre");
-                    break;
-                case 3:
-                    Console.WriteLine("Please select a valid option. Press <enter> to try again.");
-                    Console.ReadLine();
-                    PrintStock(gamesList);
-                    break;
-            }
-
-            sortedGames.RemoveAll(game => game.Stock == false);
-
-            Console.Clear();
-            Console.WriteLine($"Sorted by: {sortedBy}");
-            Console.WriteLine("Date: " + currentTime + "\n");
-            ShowGames(sortedGames);
-            return;
-        }
-
-        public List<Game> QuickSort(List<Game> games, int left, int right, string sortBy)
-        {            
-            if (left < right && sortBy == "title")
-            {
-                int pivotIndex = QuickSortByTitle(games, left, right);
-                QuickSort(games, left, pivotIndex - 1, "title");
-                QuickSort(games, pivotIndex + 1, right, "title");                
-            }
-            else if (left < right && sortBy == "genre")
-            {
-                int pivotIndex = QuickSortByGenre(games, left, right);
-                QuickSort(games, left, pivotIndex - 1, "genre");
-                QuickSort(games, pivotIndex + 1, right, "genre");
-            }
-            return games;
-        }
-
-        // Refactor: can property to sort by be supplied by a parameter? If so, combine QuickSortByTitle() and QuickSortByGenre().
-        private int QuickSortByTitle(List<Game> games, int left, int right)
-        {
-            string pivot = games[right].Title;
-            int i = left - 1;
-
-            for (int j = left; j < right; j++)
-            {
-                if (string.Compare(games[j].Title, pivot) <= 0)
-                {
-                    i++;
-                    Game temp = games[i];
-                    games[i] = games[j];
-                    games[j] = temp;
-                }
-            }
-
-            Game tempPivot = games[i + 1];
-            games[i + 1] = games[right];
-            games[right] = tempPivot;
-
-            return i + 1;
-        }
-
-        private int QuickSortByGenre(List<Game> games, int left, int right)
-        {
-            string pivot = games[right].Genre;
-            int i = left - 1;
-
-            for (int j = left; j < right; j++)
-            {
-                if (string.Compare(games[j].Genre, pivot) <= 0)
-                {
-                    i++;
-                    Game temp = games[i];
-                    games[i] = games[j];
-                    games[j] = temp;
-                }
-            }
-
-            Game tempPivot = games[i + 1];
-            games[i + 1] = games[right];
-            games[right] = tempPivot;
-
-            return i + 1;
-        }
-
-        // To search for multiple games, keep the list, and ask after switch if they want to search for additonal search criteria? Loop around so both search results are added to list?
+        // Method to search gamesList based on user input.
         public void SearchGames()
         {
             Console.Clear();
@@ -213,7 +108,7 @@ namespace ProjektGenspil
             return;
         }
 
-        // Method to set the size of the console window at lunch automatically (full view).
+        // Method to set the name and size (full screen) of the console window at lunch automatically.
         public void ConsoleWindowSetup()
         {
             Console.Title = "Genspil Inventory System";
@@ -221,26 +116,28 @@ namespace ProjektGenspil
             Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
         }
 
-        //Method to load the games from a txt.file(GenspilGames.txt) into a list(gamesList) as setup.
-        public void LoadGamesFromFile()
+        //Method to load a public .txt file from Google Drive (but saving cannot be done using this method, only locally).
+        public async Task LoadGamesFromFile()
         {
             try
             {
-                string directoryPath = @"C:\Users\mbaro\Desktop";
-                string fileName = "Mikkelformat.txt";
-                string filePath = Path.Combine(directoryPath, fileName);
+                string fileUrl = "https://drive.usercontent.google.com/download?id=1BWZME-CcRPyuUGS73lK6ZyAvt-iZBoBJ";
 
-                // Loads a pre-set file with a set path.
-                using (StreamReader sr = new StreamReader(filePath))
+                // Download the contents of the text file through HttpClient method
+                using (HttpClient client = new HttpClient())
                 {
-                    string line;
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        string[] gameData = line.Split(','); // Assuming comma-separated values.                              
+                    // Download the content of the text file to a string 
+                    string fileContents = await client.GetStringAsync(fileUrl);
 
-                        if (gameData.Length == 9) // Ensure all nine fields are present in each line (since the gameData array with the split data should have nine indexes).
+                    // Split the content into lines
+                    string[] lines = fileContents.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (string line in lines)
+                    {
+                        string[] gameData = line.Split(','); // Assuming comma-separated values.
+
+                        if (gameData.Length == 9) // Ensure all nine fields are present in each line
                         {
-                            // Parse each piece of information from the file from each index of the gameData array.
                             string title = gameData[0];
                             string age = gameData[1];
                             string genre = gameData[2];
@@ -264,69 +161,18 @@ namespace ProjektGenspil
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred while loading games from file: {ex.Message}");
-                Console.ReadLine();
-                return;
             }
         }
 
-        //Alternative method to load a public.txt file from Google Drive(but saving cannot be done using this method, needs API?).
-        //public async Task LoadGamesFromFile()
-        //{
-        //try
-        //{
-        //    string fileUrl = "https://drive.usercontent.google.com/download?id=1S8L4-vwd3eV712DxFQpZ6qtJJsaTY1w2";
 
-        //    // Download the contents of the text file through HttpClient method
-        //    using (HttpClient client = new HttpClient())
-        //    {
-        //        // Download the content of the text file to a string 
-        //        string fileContents = await client.GetStringAsync(fileUrl);
-
-        //        // Split the content into lines
-        //        string[] lines = fileContents.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-
-        //        foreach (string line in lines)
-        //        {
-        //            string[] gameData = line.Split(','); // Assuming comma-separated values.
-
-        //            if (gameData.Length == 9) // Ensure all nine fields are present in each line
-        //            {
-        //                // Parse each piece of information from the file
-        //                string title = gameData[0];
-        //                string age = gameData[1];
-        //                string genre = gameData[2];
-        //                string players = gameData[3];
-        //                int condition = int.Parse(gameData[4]);
-        //                int price = int.Parse(gameData[5]);
-        //                bool stock = bool.Parse(gameData[6]);
-        //                bool requested = bool.Parse(gameData[7]);
-        //                string requestedBy = gameData[8];
-
-        //                // Add the new Game instance to the gamesList
-        //                gamesList.Add(new Game(title, age, genre, players, condition, price, stock, requested, requestedBy));
-        //            }
-        //            else
-        //            {
-        //                Console.WriteLine("Invalid format for game data in the file.");
-        //            }
-        //        }
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    Console.WriteLine($"An error occurred while loading games from file: {ex.Message}");
-        //}
-        //}
-
-
-        // Method to save games in gamesList to a file (GenspilGamesSave!) (different from GenspilGames.txt to avoid overwriting, but format should be consistent between both files).
+        // Method to save the game objects in gamesList to a file (GenspilGamesSave!) on desktop.
         public void SaveToFileFromList()
         {
             try
             {
-                string directoryPath = @"C:\Users\mbaro\Desktop";
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                 string fileName = "GenspilGamesSave.txt";
-                string filePath = Path.Combine(directoryPath, fileName);
+                string filePath = Path.Combine(desktopPath, fileName);
 
                 using (StreamWriter sw = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
                 {
@@ -335,7 +181,7 @@ namespace ProjektGenspil
                         sw.WriteLine($"{game.Title},{game.Age},{game.Genre},{game.Players},{game.Condition},{game.Price},{game.Stock},{game.Requested},{game.RequestedBy}");
                     }
 
-                    Console.WriteLine($"Changes successfully saved to: {fileName}.");
+                    Console.WriteLine($"Changes successfully saved to: {filePath}.");
                     Console.WriteLine("Press <enter> to continue.");
                     Console.ReadLine();
                 }
@@ -348,7 +194,7 @@ namespace ProjektGenspil
             }
         }
 
-        // Menu for Create, Update, Delete (Read is done with ShowGames()).
+        // Menu for Create, Update, Delete (Reading is done with ShowGames()).
         public void AddEditRemoveMenu()
         {
             Console.Clear();
@@ -393,8 +239,6 @@ namespace ProjektGenspil
         }
 
         // Method to Create (Adds a new game instance to gamesList).
-        // Tilføj evt. bekræftelse, om bruger vil tilføje nyt spil, ellers skal de igennem hele opsætningen, og endda slette det igen bagefter.
-        // Tilføj getter, setter logik i Game.cs til at sikre korrekt input?
         public void AddGames()
         {
             string requestedBy = "";
@@ -458,6 +302,7 @@ namespace ProjektGenspil
             Console.WriteLine($"4) Players: {game.Players}");
             Console.WriteLine($"5) Condition: {game.Condition}");
             Console.WriteLine($"6) Price: {game.Price}");
+            // Color coding red if not in stock, green if in stock.
             Console.WriteLine($"7) Stock: {0}", game.Stock == true ? "\u001b[32mYes\u001b[0m" : "\u001b[31mNo\u001b[0m");
             Console.WriteLine("8) Requested: {0}", game.Requested == true ? "Yes" : "No");
             if (game.Requested == true)
@@ -475,31 +320,6 @@ namespace ProjektGenspil
             {
                 return;
             }
-            // ØVERSTE ER GAMMEL KODE: Printer vertikalt i stedet for horisontalt som koden forneden i metoden. SLET HVIS ALLE ENIGE OM HORISONTALT ER BEDRE.
-
-            //Console.WriteLine("Results: \n");
-            //foreach (Game game in gamesToDisplay)
-            //{
-            //    Console.WriteLine($"Game Id: {game.Id}");
-            //    Console.WriteLine($"Title: {game.Title}");
-            //    Console.WriteLine($"Year: {game.Year}");
-            //    Console.WriteLine($"Genre: {game.Genre}");
-            //    Console.WriteLine($"Players: {game.Players}");
-            //    Console.WriteLine($"Condition: {game.Condition}");
-            //    Console.WriteLine($"Price (DKK): {game.Price}");
-            //    Console.WriteLine("Stock: {0}", game.Stock == true ? "\u001b[32mYes\u001b[0m" : "\u001b[31mNo\u001b[0m");
-            //    Console.WriteLine("Requested: {0}", game.Requested == true ? "Yes" : "No");
-            //    if (game.Requested == true)
-            //    {
-            //        Console.WriteLine($"Requested by: {game.RequestedBy}");
-            //    }
-            //    // Adds a blank line between each game.
-            //    Console.WriteLine();
-            //}
-            //Console.WriteLine("Games found: {0} \n", gamesToDisplay.Count());
-            //Console.Write("Press <enter> to continue.");
-            //Console.ReadLine();
-            //return;
 
             // Print names for columns with width formatting.
             Console.WriteLine($"{"Id",-8} " +
@@ -523,6 +343,7 @@ namespace ProjektGenspil
                                   $"{game.Players,-9} " +
                                   $"{game.Condition,-9} " +
                                   $"{game.Price,-8} " +
+                                  // Color coding red if not in stock, green if in stock.
                                   $"{(game.Stock ? "\u001b[32mYes\u001b[0m" : "\u001b[31mNo\u001b[0m"),-19} " +
                                   $"{(game.Requested ? "Yes" : "No"),-10} " +
                                   $"{(game.Requested ? game.RequestedBy : ""),-10}");
@@ -534,26 +355,95 @@ namespace ProjektGenspil
             return;
         }
 
-        // Method to Update a game object. Instead make into generic verify choice method for several methods to use?
-        // Just integrate directly into UpdateField()?
         public void UpdateGame()
         {
             Console.Clear();
+            string verifyChoice;
 
             Game game = GetGameById(gamesList);
 
             if (game != null)
             {
+                Console.Clear();
                 Console.WriteLine($"You have selected {game.Title}. Is this correct? (Y/N)");
                 verifyChoice = Console.ReadLine().ToLower();
 
-                if (verifyChoice.ToLower() == "y")
+                if (verifyChoice == "y")
                 {
-                    UpdateField(game);
-                    return;
+                    while (true)
+                    {
+                        GameSummary(game);
+
+                        Console.Write("\nSelect a field to correct (#): ");
+                        int.TryParse(Console.ReadLine(), out int gameField);
+
+                        if (gameField < 1 || gameField > 9)
+                        {
+                            Console.WriteLine("Invalid option chosen. Press <enter> to try again.");
+                            Console.ReadLine();
+                            continue;
+                        }
+
+                        string fieldValue = "";
+                        if (gameField == 8)
+                        {
+                            Console.Write("Please enter who it was requested by: ");
+                            fieldValue = Console.ReadLine();
+                        }
+                        else if (gameField != 7)
+                        {
+                            Console.Write("Please enter the updated value: ");
+                            fieldValue = Console.ReadLine();
+                        }
+
+                        try
+                        {
+                            switch (gameField)
+                            {
+                                case 1:
+                                    game.Title = fieldValue;
+                                    break;
+                                case 2:
+                                    game.Age = fieldValue;
+                                    break;
+                                case 3:
+                                    game.Genre = fieldValue;
+                                    break;
+                                case 4:
+                                    game.Players = fieldValue;
+                                    break;
+                                case 5:
+                                    game.Condition = int.Parse(fieldValue);
+                                    break;
+                                case 6:
+                                    game.Price = int.Parse(fieldValue);
+                                    break;
+                                case 7:
+                                    game.Stock = !game.Stock;
+                                    break;
+                                case 8:
+                                    game.Requested = !game.Requested;
+                                    game.RequestedBy = fieldValue;
+                                    break;
+                                case 9:
+                                    game.RequestedBy = fieldValue;
+                                    break;
+                            }
+                            Console.WriteLine($"{game.Title} was successfully updated. Press <enter> to continue.");
+                            Console.ReadLine();
+                            break;
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("You entered something invalid. Press <enter> to try again.");
+                            Console.ReadLine();
+                        }
+                    }
                 }
-                else if (verifyChoice.ToLower() == "n")
+                else if (verifyChoice == "n")
+                {
                     UpdateGame();
+                }
                 else
                 {
                     Console.WriteLine("You entered something invalid. Press <enter> to try again.");
@@ -571,82 +461,6 @@ namespace ProjektGenspil
             AddEditRemoveMenu();
         }
 
-        // Method for updating fields in UpdateGame() and VerifyNewGame();
-        public void UpdateField(Game game)
-        {
-            Console.Clear();
-            string fieldValue = "";
-
-            GameSummary(game);
-
-            Console.Write("\nSelect a field to correct (#): ");
-            int.TryParse(Console.ReadLine(), out int gameField);
-
-            // If "Requested" is chosen, also ask who it was requested by. The "Requested"-bool is just flipped.
-            if (gameField == 8)
-            {
-                Console.Write("Please enter who it was requested by: ");
-                fieldValue = Console.ReadLine();
-            }
-            // If "In stock" is chosen, no updated value is necessary. The "Stock"-bool is just flipped. Otherwise, ask for updated value.
-            else if (gameField != 7/* && gameField != 8*/)
-            {
-                Console.Write($"Please enter the updated value: ");
-                fieldValue = Console.ReadLine();
-            }
-
-            try
-            {
-                switch (gameField)
-                {
-                    case 1:
-                        game.Title = fieldValue;
-                        break;
-                    case 2:
-                        game.Age = fieldValue;
-                        break;
-                    case 3:
-                        game.Genre = fieldValue;
-                        break;
-                    case 4:
-                        game.Players = fieldValue;
-                        break;
-                    case 5:
-                        game.Condition = int.Parse(fieldValue);
-                        break;
-                    case 6:
-                        game.Price = int.Parse(fieldValue);
-                        break;
-                    case 7:
-                        game.Stock = !game.Stock;
-                        break;
-                    case 8:
-                        game.Requested = !game.Requested;
-                        game.RequestedBy = fieldValue;
-                        break;
-                    case 9:
-                        game.RequestedBy = fieldValue;
-                        break;
-                    default:
-                        Console.WriteLine("Invalid option chosen. Press <enter> to try again.");
-                        Console.ReadLine();
-                        UpdateField(game);
-                        break;
-                }
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("You entered something invalid. Press <enter> to try again.");
-                Console.ReadLine();
-                Console.Clear();
-                UpdateField(game);
-            }
-
-            GameSummary(game);
-            Console.Write($"\n{game.Title} was succesfully updated. \nPress <enter> to continue.\n");
-            Console.ReadLine();
-            return;
-        }
 
         // A method for retrieivng a game by its ID and returning that specific game object.
         public Game GetGameById(List<Game> gamesList)
@@ -655,7 +469,7 @@ namespace ProjektGenspil
             Console.Write("Please write the ID of the game: ");
             int.TryParse(Console.ReadLine(), out id);
 
-            // Search for the game with the parameter IDs.
+            // Search gamesList for the game object with the id from user input and return it if found.
             Game game = gamesList.FirstOrDefault(game => game.Id == id);
 
             if (game == null)
@@ -669,12 +483,12 @@ namespace ProjektGenspil
         }
 
         // Method for Delete (Removes a game from the gamesList).
-        // Deletion must also remove the game in the txt.file, not just the list? Maybe write entire gamesList back out to file after deletion? (overwriting it all) or just have separate save option in main menu.
         public void DeleteGame() 
         {
             try
             {
                 Game game = GetGameById(gamesList);
+                string verifyChoice;
 
                 GameSummary(game);
 

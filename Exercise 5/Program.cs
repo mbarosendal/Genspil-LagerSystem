@@ -1,4 +1,4 @@
-﻿using ProjektGenspil;
+﻿using GenspilSystem;
 
 Menu newMenu = new Menu();
 newMenu.LoadGamesFromFile();
@@ -7,7 +7,6 @@ newMenu.ConsoleWindowSetup();
 Console.Write("Welcome to Genspil menu system! Press <enter> to proceed to the menu. ");
 Console.ReadLine();
 
-// Keeps user in the main menu.
 while (true)
 {
     Console.Clear();
@@ -26,10 +25,9 @@ while (true)
 
     switch (menuChoice)
     {
-        // Show the menu.
         case 1:
             Console.Clear();
-            newMenu.ShowGames(newMenu.gamesList);;    // ++ sort, print
+            newMenu.ShowGames(newMenu.gamesList);
             continue;
         case 2:
             Console.Clear();
@@ -41,11 +39,11 @@ while (true)
             continue;
         case 4:
             Console.Clear();
-            //newMenu.ShowRequests();
+            // Mikkels metodekald?
             continue;
         case 5: 
             Console.Clear();
-            newMenu.PrintStock(newMenu.gamesList);
+            // Moniques metodekald?
             continue;
         case 6:
             Console.Clear();
