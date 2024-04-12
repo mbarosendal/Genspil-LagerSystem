@@ -346,7 +346,10 @@ namespace GenspilSystem
                                     game.RequestedBy = fieldValue;
                                     break;
                             }
-                            Console.WriteLine($"{game.Title} was successfully updated. Press <enter> to continue.");
+                            Console.Clear();
+                            GameSummary(game);
+
+                            Console.WriteLine($"\n{game.Title} was successfully updated. Press <enter> to continue.");
                             Console.ReadLine();
                             break;
                         }
