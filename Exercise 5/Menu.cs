@@ -221,106 +221,106 @@ namespace ProjektGenspil
             Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
         }
 
-        // Method to load the games from a txt.file (GenspilGames.txt) into a list (gamesList) as setup.
-        //public void LoadGamesFromFile()
-        //{
-        //    try
-        //    {
-        //        string directoryPath = @"C:\Users\mbaro\Desktop";
-        //        string fileName = "GenspilGames.txt";
-        //        string filePath = Path.Combine(directoryPath, fileName);
-
-        //        // Loads a pre-set file with a set path.
-        //        using (StreamReader sr = new StreamReader(filePath))
-        //        {
-        //            string line;
-        //            while ((line = sr.ReadLine()) != null)
-        //            {
-        //                string[] gameData = line.Split(','); // Assuming comma-separated values.                              
-
-        //                if (gameData.Length == 9) // Ensure all nine fields are present in each line (since the gameData array with the split data should have nine indexes).
-        //                {
-        //                    // Parse each piece of information from the file from each index of the gameData array.
-        //                    string title = gameData[0];
-        //                    int year = int.Parse(gameData[1]);
-        //                    string genre = gameData[2];
-        //                    string players = gameData[3];
-        //                    int condition = int.Parse(gameData[4]);
-        //                    int price = int.Parse(gameData[5]);
-        //                    bool stock = bool.Parse(gameData[6]);
-        //                    bool requested = bool.Parse(gameData[7]);
-        //                    string requestedBy = gameData[8];
-
-        //                    // Add the new Game instance to the gamesList.
-        //                    gamesList.Add(new Game(title, year, genre, players, condition, price, stock, requested, requestedBy));
-        //                }
-        //                else
-        //                {
-        //                    Console.WriteLine("Invalid format for game data in the file.");
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"An error occurred while loading games from file: {ex.Message}");
-        //        Console.ReadLine();
-        //        return;
-        //    }
-        //}
-
-        //Alternative method to load a public.txt file from Google Drive(but saving cannot be done using this method, needs API?).
-        public async Task LoadGamesFromFile()
+        //Method to load the games from a txt.file(GenspilGames.txt) into a list(gamesList) as setup.
+        public void LoadGamesFromFile()
         {
-        try
-        {
-            string fileUrl = "https://drive.usercontent.google.com/download?id=1S8L4-vwd3eV712DxFQpZ6qtJJsaTY1w2";
-
-            // Download the contents of the text file through HttpClient method
-            using (HttpClient client = new HttpClient())
+            try
             {
-                // Download the content of the text file to a string 
-                string fileContents = await client.GetStringAsync(fileUrl);
+                string directoryPath = @"C:\Users\mbaro\Desktop";
+                string fileName = "Mikkelformat.txt";
+                string filePath = Path.Combine(directoryPath, fileName);
 
-                // Split the content into lines
-                string[] lines = fileContents.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (string line in lines)
+                // Loads a pre-set file with a set path.
+                using (StreamReader sr = new StreamReader(filePath))
                 {
-                    string[] gameData = line.Split(','); // Assuming comma-separated values.
-
-                    if (gameData.Length == 9) // Ensure all nine fields are present in each line
+                    string line;
+                    while ((line = sr.ReadLine()) != null)
                     {
-                        // Parse each piece of information from the file
-                        string title = gameData[0];
-                        int year = int.Parse(gameData[1]);
-                        string genre = gameData[2];
-                        string players = gameData[3];
-                        int condition = int.Parse(gameData[4]);
-                        int price = int.Parse(gameData[5]);
-                        bool stock = bool.Parse(gameData[6]);
-                        bool requested = bool.Parse(gameData[7]);
-                        string requestedBy = gameData[8];
+                        string[] gameData = line.Split(','); // Assuming comma-separated values.                              
 
-                        // Add the new Game instance to the gamesList
-                        gamesList.Add(new Game(title, year, genre, players, condition, price, stock, requested, requestedBy));
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid format for game data in the file.");
+                        if (gameData.Length == 9) // Ensure all nine fields are present in each line (since the gameData array with the split data should have nine indexes).
+                        {
+                            // Parse each piece of information from the file from each index of the gameData array.
+                            string title = gameData[0];
+                            string age = gameData[1];
+                            string genre = gameData[2];
+                            string players = gameData[3];
+                            int condition = int.Parse(gameData[4]);
+                            int price = int.Parse(gameData[5]);
+                            bool stock = bool.Parse(gameData[6]);
+                            bool requested = bool.Parse(gameData[7]);
+                            string requestedBy = gameData[8];
+
+                            // Add the new Game instance to the gamesList.
+                            gamesList.Add(new Game(title, age, genre, players, condition, price, stock, requested, requestedBy));
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid format for game data in the file.");
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while loading games from file: {ex.Message}");
+                Console.ReadLine();
+                return;
+            }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"An error occurred while loading games from file: {ex.Message}");
-        }
-    }
+
+        //Alternative method to load a public.txt file from Google Drive(but saving cannot be done using this method, needs API?).
+        //public async Task LoadGamesFromFile()
+        //{
+        //try
+        //{
+        //    string fileUrl = "https://drive.usercontent.google.com/download?id=1S8L4-vwd3eV712DxFQpZ6qtJJsaTY1w2";
+
+        //    // Download the contents of the text file through HttpClient method
+        //    using (HttpClient client = new HttpClient())
+        //    {
+        //        // Download the content of the text file to a string 
+        //        string fileContents = await client.GetStringAsync(fileUrl);
+
+        //        // Split the content into lines
+        //        string[] lines = fileContents.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+        //        foreach (string line in lines)
+        //        {
+        //            string[] gameData = line.Split(','); // Assuming comma-separated values.
+
+        //            if (gameData.Length == 9) // Ensure all nine fields are present in each line
+        //            {
+        //                // Parse each piece of information from the file
+        //                string title = gameData[0];
+        //                string age = gameData[1];
+        //                string genre = gameData[2];
+        //                string players = gameData[3];
+        //                int condition = int.Parse(gameData[4]);
+        //                int price = int.Parse(gameData[5]);
+        //                bool stock = bool.Parse(gameData[6]);
+        //                bool requested = bool.Parse(gameData[7]);
+        //                string requestedBy = gameData[8];
+
+        //                // Add the new Game instance to the gamesList
+        //                gamesList.Add(new Game(title, age, genre, players, condition, price, stock, requested, requestedBy));
+        //            }
+        //            else
+        //            {
+        //                Console.WriteLine("Invalid format for game data in the file.");
+        //            }
+        //        }
+        //    }
+        //}
+        //catch (Exception ex)
+        //{
+        //    Console.WriteLine($"An error occurred while loading games from file: {ex.Message}");
+        //}
+        //}
 
 
-    // Method to save games in gamesList to a file (GenspilGamesSave!) (different from GenspilGames.txt to avoid overwriting, but format should be consistent between both files).
-    public void SaveToFileFromList()
+        // Method to save games in gamesList to a file (GenspilGamesSave!) (different from GenspilGames.txt to avoid overwriting, but format should be consistent between both files).
+        public void SaveToFileFromList()
         {
             try
             {
@@ -332,7 +332,7 @@ namespace ProjektGenspil
                 {
                     foreach (Game game in gamesList)
                     {
-                        sw.WriteLine($"{game.Title},{game.Year},{game.Genre},{game.Players},{game.Condition},{game.Price},{game.Stock},{game.Requested},{game.RequestedBy}");
+                        sw.WriteLine($"{game.Title},{game.Age},{game.Genre},{game.Players},{game.Condition},{game.Price},{game.Stock},{game.Requested},{game.RequestedBy}");
                     }
 
                     Console.WriteLine($"Changes successfully saved to: {fileName}.");
@@ -404,8 +404,8 @@ namespace ProjektGenspil
             {
                 Console.Write("Title: ");
                 string title = Console.ReadLine();
-                Console.Write("Year (yyyy): ");
-                int.TryParse(Console.ReadLine(), out int year);
+                Console.Write("Age (x-y): ");
+                string age = Console.ReadLine();
                 Console.Write("Genre: ");
                 string genre = Console.ReadLine();
                 Console.Write("Players (x-y): ");
@@ -424,7 +424,7 @@ namespace ProjektGenspil
                     requestedBy = Console.ReadLine();
                 }
 
-                gamesList.Add(new Game(title, year, genre, players, condition, price, stock, requested, requestedBy));
+                gamesList.Add(new Game(title, age, genre, players, condition, price, stock, requested, requestedBy));
             }
             catch (Exception)
             {
@@ -453,7 +453,7 @@ namespace ProjektGenspil
             Console.WriteLine($"Summary of game (ID: {game.Id}): \n");
 
             Console.WriteLine($"1) Title: {game.Title}");
-            Console.WriteLine($"2) Year: {game.Year}");
+            Console.WriteLine($"2) Age: {game.Age}");
             Console.WriteLine($"3) Genre: {game.Genre}");
             Console.WriteLine($"4) Players: {game.Players}");
             Console.WriteLine($"5) Condition: {game.Condition}");
@@ -504,9 +504,9 @@ namespace ProjektGenspil
             // Print names for columns with width formatting.
             Console.WriteLine($"{"Id",-8} " +
                               $"{"Title",-50} " +
-                              $"{"Year",-8} " +
+                              $"{"Age",-7} " +
                               $"{"Genre",-15} " +
-                              $"{"Players",-8} " +
+                              $"{"Players",-9} " +
                               $"{"Condition",-8} " +
                               $"{"Price",-8} " +
                               $"{"Stock",-10} " +
@@ -518,7 +518,7 @@ namespace ProjektGenspil
             {
                 Console.WriteLine($"{game.Id,-8} " +
                                   $"{game.Title,-50} " +
-                                  $"{game.Year,-7} " +
+                                  $"{game.Age,-7} " +
                                   $"{game.Genre,-15} " +
                                   $"{game.Players,-9} " +
                                   $"{game.Condition,-9} " +
@@ -603,7 +603,7 @@ namespace ProjektGenspil
                         game.Title = fieldValue;
                         break;
                     case 2:
-                        game.Year = int.Parse(fieldValue);
+                        game.Age = fieldValue;
                         break;
                     case 3:
                         game.Genre = fieldValue;

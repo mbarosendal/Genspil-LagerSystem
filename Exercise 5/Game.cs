@@ -11,7 +11,7 @@ namespace ProjektGenspil
         private static int nextId = 1;
         public int Id { get; private set; }
         public string Title { get; set; }
-        public int Year { get; set; }
+        public string Age { get; set; }
         public string Genre { get; set; }
         public string Players { get; set; }
         public int Condition { get; set; }
@@ -21,11 +21,11 @@ namespace ProjektGenspil
         public string RequestedBy { get; set;}
 
         // The constructor.
-        public Game(string title, int year, string genre, string players, int condition, int price, bool stock, bool requested, string requestedBy)
+        public Game(string title, string age, string genre, string players, int condition, int price, bool stock, bool requested, string requestedBy)
         {
             this.Id = nextId++;
             this.Title = title;
-            this.Year = year;
+            this.Age = age;
             this.Genre = genre;
             this.Players = players;
             this.Condition = condition;
