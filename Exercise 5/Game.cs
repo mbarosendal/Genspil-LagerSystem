@@ -24,7 +24,7 @@ namespace ProjektGenspil
         public Game(string title, int year, string genre, string players, int condition, int price, bool stock, bool requested, string requestedBy)
         {
             this.Id = nextId++;
-            this.Title = title/*.ToLower() for searching?*/;
+            this.Title = title;
             this.Year = year;
             this.Genre = genre;
             this.Players = players;

@@ -2,8 +2,9 @@
 
 Menu newMenu = new Menu();
 newMenu.LoadGamesFromFile();
+newMenu.ConsoleWindowSetup();
 
-Console.Write("Welcome to Genspil menusystem! Please press enter to proceed to the menu. ");
+Console.Write("Welcome to Genspil menu system! Press <enter> to proceed to the menu. ");
 Console.ReadLine();
 
 // Keeps user in the main menu.
@@ -16,7 +17,9 @@ while (true)
     Console.WriteLine("2) Search games");
     Console.WriteLine("3) Add, edit or remove games");
     Console.WriteLine("4) Show requests");
-    Console.WriteLine("5) Exit ");
+    Console.WriteLine("5) Print inventory");
+    Console.WriteLine("6) Exit ");
+    Console.WriteLine("7) Save changes");
 
     Console.Write("\nPlease select an option (#): ");
     int menuChoice = int.Parse(Console.ReadLine());
@@ -40,10 +43,18 @@ while (true)
             Console.Clear();
             //newMenu.ShowRequests();
             continue;
-        case 5:
+        case 5: 
+            Console.Clear();
+            newMenu.PrintStock(newMenu.gamesList);
+            continue;
+        case 6:
             Console.Clear();
             Console.WriteLine("Thank you for using the service. You may close the program now.");
             return;
+        case 7:
+            Console.Clear();
+            newMenu.SaveToFileFromList();
+            break;
         default:
             Console.Clear();
             Console.WriteLine("Please select a valid option. Press <enter> to try again.");
